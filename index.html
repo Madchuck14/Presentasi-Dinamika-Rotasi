@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
+<meta name="theme-color" content="#111d32" />
+<meta name="description" content="Materi dan simulasi interaktif Dinamika Rotasi dan Kesetimbangan Benda Tegar untuk pembelajaran Fisika SMA/MA." />
+<link rel="manifest" href="manifest.webmanifest" />
+<link rel="icon" href="icon.svg" type="image/svg+xml" />
+<link rel="stylesheet" href="styles.css" />
+<title>Dinamika Rotasi | Mode Presentasi Kelas PID</title>
+</head>
+<body>
+<div id="app">
+<header class="topbar">
+ <div class="brand"><div class="brand-icon" aria-hidden="true">↻</div><div><strong>Studio Fisika</strong><span>MODUL INTERAKTIF · SMA/MA</span></div></div>
+ <div class="header-divider"></div>
+ <div class="page-heading"><strong>Dinamika Rotasi</strong><span>Kesetimbangan Benda Tegar</span></div>
+ <nav class="top-nav" aria-label="Tampilan utama"><button id="tabPresentation" class="nav-tab active" aria-pressed="true">▣ <span>Presentasi</span></button><button id="tabLabs" class="nav-tab" aria-pressed="false">⚗ <span>Laboratorium</span></button></nav>
+ <div class="top-actions"><button id="classroomHeaderBtn" class="classroom-launch" aria-label="Mulai mode presentasi kelas" title="Mode presentasi kelas">▣ <span>Presentasi Kelas</span></button><button id="pidModeBtn" class="pid-mode-btn" aria-pressed="false" title="Mode sentuh untuk Panel Interaktif Digital">☝ <span>Mode PID</span></button><button class="icon-btn mobile-only" id="mobileSlidesBtn" title="Daftar slide" aria-label="Daftar slide">☰</button><button class="icon-btn" id="shortcutsBtn" title="Bantuan dan pintasan" aria-label="Bantuan">?</button><button class="icon-btn" id="focusBtn" title="Mode fokus" aria-label="Mode fokus">⤢</button></div>
+</header>
+<div class="app-content" id="presentationView">
+ <aside class="sidebar" id="slideSidebar" aria-label="Daftar slide">
+  <div class="sidebar-header"><div><div class="section-label">DAFTAR MATERI</div><h2>Jelajahi slide</h2></div><button class="icon-btn close-mobile" id="closeSlidesBtn" aria-label="Tutup daftar slide">×</button></div>
+  <label class="search-wrap"><span>⌕</span><input id="searchInput" type="search" placeholder="Cari materi atau rumus ..." aria-label="Cari slide" autocomplete="off" /><kbd>/</kbd></label>
+  <div class="topic-summary"><span class="summary-icon">▤</span><div><strong>11 slide materi</strong><small>Disajikan sesuai berkas PPTX asli</small></div></div>
+  <div id="slideList" class="slide-list"></div>
+  <div class="sidebar-footer"><span class="online-dot"></span> Bisa dijalankan tanpa koneksi internet setelah berkas tersedia di perangkat.</div>
+ </aside>
+ <main class="main-panel">
+  <div class="panel-top"><div><div class="eyebrow" id="slideCategory">PEMBUKA</div><h1 id="currentTitle">Dinamika Rotasi dan Kesetimbangan Benda Tegar</h1></div><div class="panel-top-right"><button id="classroomMainBtn" class="classroom-launch classroom-main-launch" aria-label="Mulai mode presentasi kelas">▣ <span>Presentasi kelas</span></button><button id="bookmarkBtn" class="outline-btn" title="Simpan penanda slide">☆ <span>Tandai</span></button><button id="fullscreenBtn" class="outline-btn">⛶ <span>Layar penuh</span></button></div></div>
+  <div class="viewer-shell" id="viewerShell">
+    <div class="viewer-viewport" id="viewerViewport">
+      <div class="slide-canvas" id="slideCanvas"><img id="slideImage" src="slides/slide-01.webp" alt="Slide 1" draggable="false"/><canvas id="inkCanvas" aria-label="Lapisan anotasi" ></canvas><div class="laser" id="laserDot"></div><div class="slide-loading" id="loadingMessage">Memuat slide…</div></div>
+    </div>
+    <div class="overlay-page-counter" id="overlayCounter">01 / 11</div>
+    <button type="button" class="pid-edge pid-edge-prev" id="pidPrev" aria-label="Slide sebelumnya" title="Slide sebelumnya">‹</button>
+    <button type="button" class="pid-edge pid-edge-next" id="pidNext" aria-label="Slide berikutnya" title="Slide berikutnya">›</button>
+    <div class="pid-swipe-tip" id="pidSwipeTip" aria-hidden="true">☝ Geser ke kiri / kanan untuk mengganti slide</div>
+    <div class="pid-touch-dock" id="pidTouchDock" aria-label="Kendali sentuh presentasi">
+      <button type="button" id="pidDockPrev" aria-label="Slide sebelumnya">‹</button>
+      <span id="pidDockCounter" class="pid-dock-counter">01 / 11</span>
+      <button type="button" id="pidDockNext" aria-label="Slide berikutnya">›</button>
+      <span class="pid-dock-divider"></span>
+      <button type="button" id="pidDockPen" aria-label="Pena sentuh" title="Pena sentuh">✎</button>
+      <button type="button" id="pidDockLaser" aria-label="Laser sentuh" title="Laser sentuh">◎</button>
+      <button type="button" id="pidDockUndo" aria-label="Urungkan coretan" title="Urungkan coretan">↶</button>
+      <button type="button" id="pidDockClear" aria-label="Hapus semua coretan" title="Hapus coretan">⌫</button>
+      <span class="pid-dock-divider"></span>
+      <button type="button" id="pidDockFullscreen" aria-label="Aktifkan atau keluar dari layar penuh" title="Layar penuh">⛶</button>
+    </div>
+    <!-- Mode Presentasi Kelas: kontrol di dalam kanvas, tanpa panel samping -->
+    <div id="classroomTop" class="classroom-top" aria-hidden="true">
+      <span class="classroom-mark"><span class="classroom-signal"></span> MODE PRESENTASI KELAS</span>
+      <strong id="classroomTitle">Dinamika Rotasi</strong>
+      <span class="classroom-clock" id="classroomClock">00:00</span>
+    </div>
+    <div id="classroomCounter" class="classroom-counter" aria-label="Nomor slide">01 / 11</div>
+    <div id="classroomToolbar" class="classroom-toolbar" role="toolbar" aria-label="Alat presentasi kelas">
+      <div class="classroom-group">
+        <button id="classPrev" class="classroom-btn class-arrow" type="button" title="Slide sebelumnya" aria-label="Slide sebelumnya">‹</button>
+        <span id="classCount" class="class-count" aria-live="polite">01 / 11</span>
+        <button id="classNext" class="classroom-btn class-arrow" type="button" title="Slide berikutnya" aria-label="Slide berikutnya">›</button>
+      </div>
+      <span class="class-separator"></span>
+      <div class="classroom-group">
+        <button id="classPen" class="classroom-btn" type="button" title="Pena (P)" aria-label="Pena">✎</button>
+        <button id="classLaser" class="classroom-btn" type="button" title="Laser (L)" aria-label="Laser">◎</button>
+        <button id="classUndo" class="classroom-btn" type="button" title="Urungkan coretan" aria-label="Urungkan coretan">↶</button>
+        <button id="classClear" class="classroom-btn" type="button" title="Hapus coretan" aria-label="Hapus coretan">⌫</button>
+      </div>
+      <span class="class-separator"></span>
+      <div class="classroom-group">
+        <button id="classZoomOut" class="classroom-btn" type="button" title="Perkecil" aria-label="Perkecil">−</button>
+        <span id="classZoomValue" class="class-zoom">100%</span>
+        <button id="classZoomIn" class="classroom-btn" type="button" title="Perbesar" aria-label="Perbesar">+</button>
+        <button id="classFit" class="classroom-btn" type="button" title="Sesuaikan ukuran" aria-label="Sesuaikan ukuran">⤢</button>
+      </div>
+      <span class="class-separator"></span>
+      <div class="classroom-group">
+        <button id="classLab" class="classroom-btn class-label-btn" type="button" title="Buka simulasi terkait" aria-label="Buka simulasi terkait">⚗ <span>Simulasi</span></button>
+        <button id="classExit" class="classroom-btn class-exit" type="button" title="Keluar dari mode presentasi kelas" aria-label="Keluar dari mode presentasi kelas">× <span>Selesai</span></button>
+      </div>
+      <button id="classHide" class="classroom-btn class-hide" type="button" title="Sembunyikan bilah alat" aria-label="Sembunyikan bilah alat">⌄</button>
+    </div>
+    <button id="classReveal" type="button" class="classroom-reveal" aria-label="Tampilkan bilah alat presentasi" title="Tampilkan alat presentasi">☰ <span>Alat</span></button>
+    <div id="classroomFirstTip" class="classroom-first-tip" role="status">Geser satu jari untuk berpindah slide. Sentuh tombol “Alat” untuk menampilkan kendali.</div>
+  </div>
+  <div class="player-controls">
+    <div class="transport"><button class="control-square" id="prevBtn" title="Slide sebelumnya (←)" aria-label="Slide sebelumnya">‹</button><button class="control-square primary" id="playBtn" title="Putar otomatis" aria-label="Putar otomatis">▶</button><button class="control-square" id="nextBtn" title="Slide berikutnya (→)" aria-label="Slide berikutnya">›</button><span id="counterLabel" class="counter">01 <span>/ 11</span></span></div>
+    <div class="progress-area"><input id="slideRange" type="range" min="1" max="11" value="1" step="1" aria-label="Pilih slide"/><div class="progress-label"><span>PROGRES BELAJAR</span><span id="progressPercent">9%</span></div></div>
+    <div class="utility-controls"><button class="icon-btn tool-toggle" data-tool="laser" id="laserBtn" title="Penunjuk laser (L)" aria-label="Penunjuk laser">◎</button><button class="icon-btn tool-toggle" data-tool="pen" id="penBtn" title="Tulis pada slide (P)" aria-label="Tulis pada slide">✎</button><button class="icon-btn" id="undoBtn" title="Urungkan coretan" aria-label="Urungkan coretan">↶</button><button class="icon-btn" id="clearBtn" title="Bersihkan coretan" aria-label="Bersihkan coretan">⌫</button><span class="tool-divider"></span><button class="icon-btn" id="zoomOutBtn" title="Perkecil">−</button><span id="zoomLabel" class="zoom-display">100%</span><button class="icon-btn" id="zoomInBtn" title="Perbesar">+</button><button class="icon-btn" id="resetZoomBtn" title="Atur ulang ukuran">⤾</button></div>
+  </div>
+  <div class="main-bottom"><div class="hint"><span class="hint-spark">✦</span> <span id="contextHint">Pilih topik di sebelah kiri untuk berpindah materi.</span></div><button class="text-link" id="toLabBtn">Coba simulasi terkait <span>↗</span></button></div>
+ </main>
+ <aside class="info-panel" id="infoPanel"><div class="info-heading"><div class="section-label">PANDUAN BELAJAR</div><h2>Ringkasan & catatan</h2></div>
+   <div class="info-card formula-card"><div class="card-label">KONSEP UTAMA</div><h3 id="conceptHeading">Dinamika rotasi</h3><p id="conceptText">Pelajari hubungan gaya, torsi, dan perubahan gerak rotasi.</p><div id="formulaBox" class="formula-display">τ = rF sin θ</div></div>
+   <div class="info-card"><div class="card-label">CATATAN PRIBADI <span class="badge-local">Tersimpan di browser</span></div><textarea id="notesText" rows="6" placeholder="Tuliskan poin penting atau pertanyaan untuk slide ini ..." aria-label="Catatan pribadi untuk slide"></textarea><div class="notes-footer"><span id="notesStatus">Tersimpan otomatis</span><button id="copyNotesBtn">Salin</button></div></div>
+   <div class="info-card slide-link-card"><div class="card-label">EKSPLORASI LANJUTAN</div><p id="labSuggestion">Gunakan laboratorium untuk mencoba hubungan kecepatan sudut dan jari-jari.</p><button id="sideLabBtn" class="accent-button">Buka laboratorium <span>↗</span></button></div>
+   <div id="editorNote" class="info-card editorial-note hidden"><div class="card-label">CATATAN KETELITIAN MATERI</div><p>Persamaan Στ = Iα adalah penerapan Hukum II Newton pada gerak rotasi, bukan Hukum III. Pada kalimat tentang gaya tangensial juga ada kata “percepatan” yang terlewat. Slide asli sengaja tidak diubah.</p></div>
+ </aside>
+</div>
+<section class="labs-view hidden" id="labsView" aria-label="Laboratorium interaktif">
+  <div class="labs-header"><div><div class="eyebrow">EKSPERIMEN VIRTUAL</div><h1>Laboratorium Rotasi</h1><p>Ubah parameter dan amati bagaimana besaran fisika saling berhubungan. Simulasi ini merupakan materi pendamping, bukan bagian asli file PPTX.</p></div><button class="outline-btn" id="backToSlides">← Kembali ke slide</button></div>
+  <div class="lab-layout"><nav class="lab-nav" id="labNav" aria-label="Pilih simulasi"></nav><div class="lab-main"><div class="lab-title-row"><div><div id="labIndex" class="eyebrow">SIMULASI 01 / 05</div><h2 id="labHeading">Gerak Melingkar</h2><p id="labDescription">Eksplorasi kecepatan linear dan percepatan sentripetal.</p></div><button class="outline-btn" id="resetLabBtn">↺ Atur ulang</button></div><div class="lab-stage-grid"><div class="lab-visual"><svg id="labSvg" viewBox="0 0 600 360" role="img" aria-label="Visualisasi fisika interaktif"></svg><div id="labVisualCaption" class="visual-caption"></div></div><div class="lab-controls"><div id="labSliders"></div></div></div><div class="lab-result"><div id="labFormula" class="result-formula"></div><div id="labMetrics" class="metric-grid"></div></div><div class="lab-lesson"><span class="lesson-icon">✦</span><p id="labInsight"></p></div></div></div>
+</section>
+<footer class="global-footer"><span>Studio Fisika · Versi HTML5 mandiri · Berdasarkan 11_Bab 4.pptx</span><span>Materi asli dipertahankan pada tampilan slide • Simulasi merupakan tambahan</span></footer>
+</div>
+<div id="helpModal" class="modal-backdrop hidden" role="dialog" aria-modal="true" aria-labelledby="helpTitle"><div class="modal"><div class="modal-head"><h2 id="helpTitle">Panduan pemutar</h2><button id="closeHelpBtn" class="icon-btn" aria-label="Tutup panduan">×</button></div><p>Tampilan slide berasal dari berkas PPTX. Pemutar ini menggunakan HTML5 dan dapat dipasang pada situs web statis tanpa PowerPoint.</p><p><strong>Panel Interaktif Digital (PID):</strong> aktifkan Mode PID (atau buka dengan <code>?pid=1</code>), geser satu jari ke kiri untuk slide berikutnya dan ke kanan untuk slide sebelumnya. Dua jari dapat digunakan untuk memperbesar atau memperkecil slide. Saat diperbesar, tarik dengan satu jari untuk menggeser posisi. Pilih pena atau laser pada dok untuk mencoret atau menunjuk; dalam kedua mode tersebut, geser tidak berpindah slide. Gunakan tombol panah besar dan dok saat layar penuh.</p><p><strong>Mode Presentasi Kelas:</strong> tekan tombol “Presentasi Kelas” atau buka <code>?kelas=1</code>. Slide memenuhi bidang layar dan panel samping disembunyikan. Bilah alat tersembunyi otomatis; tekan tombol “Alat” untuk menampilkannya. Gunakan tombol “Simulasi” untuk membuka laboratorium, kemudian “Kembali ke slide” untuk melanjutkan presentasi. Tekan <kbd>C</kbd> untuk masuk/keluar dari mode kelas atau <kbd>Esc</kbd> untuk keluar.</p><div class="shortcut-grid"><span>Mode Presentasi Kelas</span><kbd>C</kbd><span>Slide berikutnya</span><kbd>→</kbd><span>Slide sebelumnya</span><kbd>←</kbd><span>Slide awal / akhir</span><kbd>Home / End</kbd><span>Putar / hentikan</span><kbd>Spasi</kbd><span>Penunjuk laser</span><kbd>L</kbd><span>Alat tulis</span><kbd>P</kbd><span>Cari slide</span><kbd>/</kbd><span>Layar penuh</span><kbd>F</kbd><span>Keluar / Tutup</span><kbd>Esc</kbd></div><p class="modal-note">Catatan dan penanda tersimpan pada browser masing-masing, bukan dikirim ke server. Untuk bekerja secara luring setelah pemasangan, akses situs setidaknya sekali saat daring.</p><button id="closeHelpBottom" class="accent-button">Mengerti</button></div></div>
+<div id="toast" class="toast" role="status" aria-live="polite"></div>
+<script src="app.js" defer></script>
+</body></html>
